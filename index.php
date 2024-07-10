@@ -1,38 +1,32 @@
 <?php
 
-if (! empty($_GET["name"])) {
+$ch = curl_init();
 
-    $response = file_get_contents("https://api.agify.io?name={$_GET['name']}");
+$headers = [
+    "Authorization: token YOUR_TOKEN"
+];
 
-    $data = json_decode($response, true);
+$payload = json_encode([
+    "name" => "Created from API",
+    "description" => "an example API-created repo"
+]);
 
-    $age = $data["age"];
-}
+curl_setopt_array($ch, [
+    CURLOPT_URL => "https://api.github.com/user/repos",
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => $headers,
+    CURLOPT_USERAGENT => "daveh",
+    //CURLOPT_CUSTOMREQUEST => "POST",
+    //CURLOPT_POST => true,
+    CURLOPT_POSTFIELDS => $payload
+]);
 
-?>
-<!DOCTYPE html>
-<html>
+$response = curl_exec($ch);
 
-<head>
-	<title>Example</title>
-</head>
+$status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-<body>
+curl_close($ch);
 
-	<?php if (isset($age)): ?>
+echo $status_code, "\n";
 
-	Age: <?= $age ?>
-
-	<?php endif; ?>
-
-	<form>
-
-		<label for="name">Name</label>
-		<input name="name" id="name">
-
-		<button>Guess age</button>
-	</form>
-
-</body>
-
-</html>
+echo $response, "\n";
